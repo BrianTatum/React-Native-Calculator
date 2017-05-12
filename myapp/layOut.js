@@ -14,9 +14,9 @@ export default class LayOut extends Component {
     super();
     this.state = {
       total: null,
-      display: 0,
+      display: '0',
       func: null,
-      newNum: false,
+      newNum: true,
       calString: ''
     };
     this._displayUpdate = this._displayUpdate.bind(this);
@@ -40,27 +40,27 @@ export default class LayOut extends Component {
           <FuncButton funcText={'÷'} func={this._handleCalFunc} />
         </View>
         <View style={styles.buttonRow}>
-          <NumButton numText={7} update={this._displayUpdate} />
-          <NumButton numText={8} update={this._displayUpdate} />
-          <NumButton numText={9} update={this._displayUpdate} />
+          <NumButton numText={'7'} update={this._displayUpdate} />
+          <NumButton numText={'8'} update={this._displayUpdate} />
+          <NumButton numText={'9'} update={this._displayUpdate} />
           <FuncButton funcText={'*'} func={this._handleCalFunc} />
         </View>
         <View style={styles.buttonRow}>
-          <NumButton numText={4} update={this._displayUpdate} />
-          <NumButton numText={5} update={this._displayUpdate} />
-          <NumButton numText={6} update={this._displayUpdate} />
+          <NumButton numText={'4'} update={this._displayUpdate} />
+          <NumButton numText={'5'} update={this._displayUpdate} />
+          <NumButton numText={'6'} update={this._displayUpdate} />
           <FuncButton funcText={'-'} func={this._handleCalFunc} />
         </View>
         <View style={styles.buttonRow}>
-          <NumButton numText={1} update={this._displayUpdate} />
-          <NumButton numText={2} update={this._displayUpdate} />
-          <NumButton numText={3} update={this._displayUpdate} />
+          <NumButton numText={'1'} update={this._displayUpdate} />
+          <NumButton numText={'2'} update={this._displayUpdate} />
+          <NumButton numText={'3'} update={this._displayUpdate} />
           <FuncButton funcText={'+'} func={this._handleCalFunc} />
         </View>
         <View style={styles.buttonRow}>
           <FuncButton funcText={'+/-'} func={this._handleCalFunc} />
-          <NumButton numText={0} update={this._displayUpdate} />
-          <FuncButton funcText={'.'} func={this._handleCalFunc} />
+          <NumButton numText={'0'} update={this._displayUpdate} />
+          <NumButton numText={'.'} update={this._displayUpdate} />
           <FuncButton funcText={'='} func={this._handleCalFunc} />
         </View>
       </View>
@@ -68,16 +68,18 @@ export default class LayOut extends Component {
   }
 
   _displayUpdate(value) {
-    if (!this.state.newNum) {
-      let displayValue = this.state.display * 10 + value;
-      this.setState({
-        display: displayValue,
-        newNum: false});
-    } else {
-      this.setState({
-        display: value,
-        newNum: false
-      })
+    if (!((this.state.display.match(/\./g) || []).length == 1 && value =='.')){
+      if (!this.state.newNum) {
+        this.setState({
+          display: this.state.display.concat(value),
+          newNum: false});
+      } else {
+        if (value=='.') {value='0.';}
+        this.setState({
+          display: value,
+          newNum: false
+        })
+      }
     }
   }
 
@@ -86,8 +88,8 @@ export default class LayOut extends Component {
       case 'C':
         this.setState({
           total: null,
-          display: 0,
-          newNum: false,
+          display: '0',
+          newNum: true,
           func: null,
           calString: ''
         });
@@ -99,10 +101,10 @@ export default class LayOut extends Component {
         this._addPress(func);
         break;
       case '=':
-        let grandTot = this._doCalFunc(this.state.total, this.state.display, this.state.func);
+        let grandTot = this._doCalFunc(this.state.total, parseFloat(this.state.display), this.state.func);
         this.setState({
           total: null,
-          display: grandTot,
+          display: grandTot.toString().replace(/^0+|0+$/g, ""),
           newNum: true,
           func: null,
           calString: ''
@@ -113,19 +115,19 @@ export default class LayOut extends Component {
   _addPress(newFunc) {
     let newCalString = this.state.calString.concat(` ${this.state.display} ${newFunc}`);
     if (this.state.total !== null) {
-      let calVal = this._doCalFunc(this.state.total, this.state.display, this.state.func);
+      let calVal = this._doCalFunc(this.state.total, parseFloat(this.state.display), this.state.func);
       this.setState({
         newNum: true,
         func: newFunc,
         total: calVal,
-        display: calVal,
+        display: calVal.toString().replace(/^0+|0+$/g, ""),
         calString: newCalString
       })
     } else {
       this.setState({
         newNum: true,
         func: newFunc,
-        total: this.state.display,
+        total: parseFloat(this.state.display),
         calString: newCalString
       })
     }
@@ -134,16 +136,16 @@ export default class LayOut extends Component {
   _doCalFunc(v1, v2, func) {
     switch (func) {
       case '+':
-        return v1 + v2;
+        return (v1 + v2).toPrecision(7);
         break;
       case '-':
-        return v1 - v2;
+        return (v1 - v2).toPrecision(7);
         break;
       case '*':
-        return v1 * v2;
+        return (v1 * v2).toPrecision(7);
         break;
       case '÷':
-        return v1 / v2;
+        return (v1 / v2).toPrecision(7);
         break;
     }
   }
