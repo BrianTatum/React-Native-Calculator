@@ -24,11 +24,28 @@ export default class LayOut extends Component {
     this._handleCalFunc = this._handleCalFunc.bind(this);
   }
 
+  componentDidUpdate() {
+    if (this.state.display.length > 15) {
+      this.setState ({
+        display: this.state.display.slice(0,15)
+      })
+    }
+    if (parseFloat(this.state.display) > 999999999999999 ) {
+      this.setState ({
+        total: null,
+        display: 'Error',
+        func: null,
+        newNum: true,
+        calString: ''
+      })
+    }
+  }
+
   render() {
     return (
       <View style={{flex: 1, backgroundColor:'#c2d6d6'}}>
         <View style={styles.header}>
-          <Text style={styles.headerText}>React Native Calculator {this.state.total}</Text>
+          <Text style={styles.headerText}>React Native Calculator</Text>
         </View>
         <View style={styles.displayArea}>
           <Text style={styles.displayText}>{this.state.display}</Text>
@@ -85,50 +102,52 @@ export default class LayOut extends Component {
   }
 
   _handleCalFunc(func) {
-    switch (func) {
-      case 'C':
-        this.setState({
-          total: null,
-          display: '0',
-          newNum: true,
-          func: null,
-          calString: ''
-        });
-        break;
-      case '+':
-      case '-':
-      case '*':
-      case '÷':
-        this._funcPress(func);
-        break;
-      case '=':
-        let grandTot = this._doCalFunc(this.state.total, parseFloat(this.state.display), this.state.func);
-        grandTot = grandTot.toString();
-        this.setState({
-          total: null,
-          display: grandTot,
-          newNum: true,
-          func: null,
-          calString: ''
-        });
-        break;
-      case 'X²':
-        this.setState({
-          display: (Math.square(this.state.display)).toString(),
-          newNum: true
-        })
-        break;
-      case '√':
-        this.setState({
-          display: (Math.sqrt(this.state.display)).toString(),
-          newNum: true
-        });
-        break;
-      case '+/-':
-        this.setState({
-          display: (Math.eval(`${this.state.display} * -1`).toString()),
-          newNum: true
-        })
+    if (this.state.display !== 'Error' || func =='C') {
+      switch (func) {
+        case 'C':
+          this.setState({
+            total: null,
+            display: '0',
+            newNum: true,
+            func: null,
+            calString: ''
+          });
+          break;
+        case '+':
+        case '-':
+        case '*':
+        case '÷':
+          this._funcPress(func);
+          break;
+        case '=':
+          let grandTot = this._doCalFunc(this.state.total, parseFloat(this.state.display), this.state.func);
+          grandTot = grandTot.toString();
+          this.setState({
+            total: null,
+            display: grandTot,
+            newNum: true,
+            func: null,
+            calString: ''
+          });
+          break;
+        case 'X²':
+          this.setState({
+            display: (Math.square(this.state.display)).toString(),
+            newNum: true
+          })
+          break;
+        case '√':
+          this.setState({
+            display: (Math.sqrt(this.state.display)).toString(),
+            newNum: true
+          });
+          break;
+        case '+/-':
+          this.setState({
+            display: (Math.eval(`${this.state.display} * -1`).toString()),
+            newNum: true
+          })
+      } //End Switch statement.
     }
   }
 
