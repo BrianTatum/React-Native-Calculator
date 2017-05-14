@@ -5,6 +5,7 @@ import {
   Text,
   View
 } from 'react-native';
+import Math from 'mathjs';
 
 import NumButton from './components/NumButton'
 import FuncButton from './components/FuncButton'
@@ -27,7 +28,7 @@ export default class LayOut extends Component {
     return (
       <View style={{flex: 1, backgroundColor:'#c2d6d6'}}>
         <View style={styles.header}>
-          <Text style={styles.headerText}>React Native Calculator</Text>
+          <Text style={styles.headerText}>React Native Calculator {this.state.total}</Text>
         </View>
         <View style={styles.displayArea}>
           <Text style={styles.displayText}>{this.state.display}</Text>
@@ -35,7 +36,7 @@ export default class LayOut extends Component {
         </View>
         <View style={styles.buttonRow}>
           <FuncButton funcText={'C'} func={this._handleCalFunc} />
-          <FuncButton funcText={'%'} func={this._handleCalFunc} />
+          <FuncButton funcText={'X²'} func={this._handleCalFunc} />
           <FuncButton funcText={'√'} func={this._handleCalFunc} />
           <FuncButton funcText={'÷'} func={this._handleCalFunc} />
         </View>
@@ -68,7 +69,7 @@ export default class LayOut extends Component {
   }
 
   _displayUpdate(value) {
-    if (!((this.state.display.match(/\./g) || []).length == 1 && value =='.')){
+    if (!((this.state.display.match(/\./g) || []).length == 1 && value =='.') || (this.state.newNum)) {
       if (!this.state.newNum) {
         this.setState({
           display: this.state.display.concat(value),
@@ -98,21 +99,40 @@ export default class LayOut extends Component {
       case '-':
       case '*':
       case '÷':
-        this._addPress(func);
+        this._funcPress(func);
         break;
       case '=':
         let grandTot = this._doCalFunc(this.state.total, parseFloat(this.state.display), this.state.func);
+        grandTot = grandTot.toString();
         this.setState({
           total: null,
-          display: grandTot.toString().replace(/^0+|0+$/g, ""),
+          display: grandTot,
           newNum: true,
           func: null,
           calString: ''
         });
+        break;
+      case 'X²':
+        this.setState({
+          display: (Math.square(this.state.display)).toString(),
+          newNum: true
+        })
+        break;
+      case '√':
+        this.setState({
+          display: (Math.sqrt(this.state.display)).toString(),
+          newNum: true
+        });
+        break;
+      case '+/-':
+        this.setState({
+          display: (Math.eval(`${this.state.display} * -1`).toString()),
+          newNum: true
+        })
     }
   }
 
-  _addPress(newFunc) {
+  _funcPress(newFunc) {
     let newCalString = this.state.calString.concat(` ${this.state.display} ${newFunc}`);
     if (this.state.total !== null) {
       let calVal = this._doCalFunc(this.state.total, parseFloat(this.state.display), this.state.func);
@@ -120,7 +140,7 @@ export default class LayOut extends Component {
         newNum: true,
         func: newFunc,
         total: calVal,
-        display: calVal.toString().replace(/^0+|0+$/g, ""),
+        display: calVal.toString(),
         calString: newCalString
       })
     } else {
@@ -134,20 +154,24 @@ export default class LayOut extends Component {
   }
 
   _doCalFunc(v1, v2, func) {
+    let answer = 0;
     switch (func) {
       case '+':
-        return (v1 + v2).toPrecision(7);
+        answer = Math.eval(v1 + v2);
         break;
       case '-':
-        return (v1 - v2).toPrecision(7);
+        answer = Math.eval(v1 - v2);
         break;
       case '*':
-        return (v1 * v2).toPrecision(7);
+        answer = Math.eval(v1 * v2);
         break;
       case '÷':
-        return (v1 / v2).toPrecision(7);
+        answer = Math.eval(v1 / v2);
         break;
+      default:
+        answer = v2; 
     }
+    return answer;
   }
 }
 
