@@ -6,8 +6,11 @@ import {
   TouchableHighlight 
 } from 'react-native';
 
-const FuncButton = ({funcText, func}) =>
-	<TouchableHighlight style={styles.buttonArea} onPress={() => {func(funcText)}} >
+const FuncButton = ({funcText, func, egg}) =>
+	<TouchableHighlight 
+		style={styles.buttonArea} 
+		onPress={() => {func(funcText)}}
+		onLongPress={() => {egg(funcText)}} >
 		<Text style={styles.buttonText}>{funcText}</Text>
 	</TouchableHighlight >
 

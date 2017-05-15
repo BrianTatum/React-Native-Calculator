@@ -3,12 +3,14 @@ import {
   AppRegistry,
   StyleSheet,
   Text,
-  View
+  View,
+  Modal
 } from 'react-native';
 import Math from 'mathjs';
 
-import NumButton from './components/NumButton'
-import FuncButton from './components/FuncButton'
+import NumButton from './components/NumButton';
+import FuncButton from './components/FuncButton';
+import EasterEgg from './components/EasterEgg';
 
 export default class LayOut extends Component {
   constructor() {
@@ -18,10 +20,13 @@ export default class LayOut extends Component {
       display: '0',
       func: null,
       newNum: true,
-      calString: ''
+      calString: '',
+      showModel: false
     };
     this._displayUpdate = this._displayUpdate.bind(this);
     this._handleCalFunc = this._handleCalFunc.bind(this);
+    this._easterEgg = this._easterEgg.bind(this);
+    this._hideEgg = this._hideEgg.bind(this);
   }
 
   componentDidUpdate() {
@@ -79,8 +84,19 @@ export default class LayOut extends Component {
           <FuncButton funcText={'+/-'} func={this._handleCalFunc} />
           <NumButton numText={'0'} update={this._displayUpdate} />
           <NumButton numText={'.'} update={this._displayUpdate} />
-          <FuncButton funcText={'='} func={this._handleCalFunc} />
+          <FuncButton funcText={'='} func={this._handleCalFunc} egg={this._easterEgg} />
         </View>
+        <Modal
+          animationType={'fade'}
+          transparent={true}
+          visible={this.state.showModel}
+          onRequestClose={this._hideEgg} >
+          <View style={styles.buttonRow}></View>
+          <View style={styles.modalArea}>
+            <EasterEgg close={this._hideEgg} />
+          </View>
+          <View style={styles.buttonRow}></View>
+        </Modal>
       </View>
     );
   }
@@ -192,6 +208,21 @@ export default class LayOut extends Component {
     }
     return answer;
   }
+
+  _easterEgg(func) {
+    if ( this.state.display === '11101975' && func === '=') {  this.state.display === '11101975' &&
+      this.setState ({
+        showModel: true,
+        display: '0'
+      })
+    }
+  }
+
+  _hideEgg() {
+    this.setState ({
+      showModel: false
+    })
+  }
 }
 
 const styles = StyleSheet.create({
@@ -225,6 +256,10 @@ const styles = StyleSheet.create({
   buttonRow: {
     flex: 1,
     flexDirection: 'row'
+  },
+  modalArea: {
+    flex: 5,
+    flexDirection: 'row',
   }
 })
 
